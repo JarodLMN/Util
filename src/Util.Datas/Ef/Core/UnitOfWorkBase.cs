@@ -20,13 +20,14 @@ using Util.Datas.Sql.Matedatas;
 using Util.Datas.Transactions;
 using Util.Helpers;
 using Util.Logs;
+using Util.Security;
 using Util.Sessions;
 
 namespace Util.Datas.Ef.Core {
     /// <summary>
     /// 工作单元
     /// </summary>
-    public abstract class UnitOfWorkBase : DbContext, IUnitOfWork, IDatabase, IEntityMatedata {
+    public abstract partial class UnitOfWorkBase : DbContext, IUnitOfWork, IDatabase, IEntityMatedata {
 
         #region 字段
 
@@ -38,6 +39,10 @@ namespace Util.Datas.Ef.Core {
         /// 日志工厂
         /// </summary>
         private static readonly ILoggerFactory LoggerFactory;
+        /// <summary>
+        /// 服务提供器
+        /// </summary>
+        private IServiceProvider _serviceProvider;
 
         #endregion
 
@@ -59,12 +64,31 @@ namespace Util.Datas.Ef.Core {
         /// 初始化Entity Framework工作单元
         /// </summary>
         /// <param name="options">配置</param>
-        /// <param name="manager">工作单元管理器</param>
-        protected UnitOfWorkBase( DbContextOptions options, IUnitOfWorkManager manager )
+        /// <param name="serviceProvider">服务提供器</param>
+        protected UnitOfWorkBase( DbContextOptions options, IServiceProvider serviceProvider )
             : base( options ) {
-            manager?.Register( this );
             TraceId = Guid.NewGuid().ToString();
-            Session = Util.Security.Sessions.Session.Instance;
+            Session = Sessions.Session.Instance;
+            _serviceProvider = serviceProvider ?? Ioc.Create<IServiceProvider>();
+            RegisterToManager();
+        }
+
+        /// <summary>
+        /// 注册到工作单元管理器
+        /// </summary>
+        private void RegisterToManager() {
+            var manager = Create<IUnitOfWorkManager>();
+            manager?.Register( this );
+        }
+
+        /// <summary>
+        /// 创建实例
+        /// </summary>
+        private T Create<T>() {
+            var result = _serviceProvider.GetService( typeof( T ) );
+            if( result == null )
+                return default( T );
+            return (T)result;
         }
 
         #endregion
@@ -133,7 +157,7 @@ namespace Util.Datas.Ef.Core {
         /// </summary>
         private EfConfig GetConfig() {
             try {
-                var options = Ioc.Create<IOptionsSnapshot<EfConfig>>();
+                var options = Create<IOptionsSnapshot<EfConfig>>();
                 return options.Value;
             }
             catch {
@@ -163,7 +187,9 @@ namespace Util.Datas.Ef.Core {
         /// <summary>
         /// 获取映射接口类型
         /// </summary>
-        protected abstract Type GetMapType();
+        protected virtual Type GetMapType() {
+            return this.GetType();
+        }
 
         /// <summary>
         /// 从程序集获取映射配置列表
@@ -234,7 +260,7 @@ namespace Util.Datas.Ef.Core {
         /// </summary>
         public override async Task<int> SaveChangesAsync( CancellationToken cancellationToken = default( CancellationToken ) ) {
             SaveChangesBefore();
-            var transactionActionManager = Ioc.Create<ITransactionActionManager>();
+            var transactionActionManager = Create<ITransactionActionManager>();
             if( transactionActionManager.Count == 0 )
                 return await base.SaveChangesAsync( cancellationToken );
             return await TransactionCommit( transactionActionManager, cancellationToken );
@@ -271,7 +297,14 @@ namespace Util.Datas.Ef.Core {
         /// 初始化创建审计信息
         /// </summary>
         private void InitCreationAudited( EntityEntry entry ) {
-            CreationAuditedInitializer.Init( entry.Entity, GetSession() );
+            CreationAuditedInitializer.Init( entry.Entity, GetUserId(), GetUserName() );
+        }
+
+        /// <summary>
+        /// 获取用户标识
+        /// </summary>
+        protected virtual string GetUserId() {
+            return GetSession().UserId;
         }
 
         /// <summary>
@@ -282,10 +315,18 @@ namespace Util.Datas.Ef.Core {
         }
 
         /// <summary>
+        /// 获取用户名称
+        /// </summary>
+        protected virtual string GetUserName() {
+            var name = GetSession().GetFullName();
+            return string.IsNullOrEmpty( name ) ? GetSession().GetUserName() : name;
+        }
+
+        /// <summary>
         /// 初始化修改审计信息
         /// </summary>
         private void InitModificationAudited( EntityEntry entry ) {
-            ModificationAuditedInitializer.Init( entry.Entity, GetSession() );
+            ModificationAuditedInitializer.Init( entry.Entity, GetUserId(), GetUserName() );
         }
 
         /// <summary>

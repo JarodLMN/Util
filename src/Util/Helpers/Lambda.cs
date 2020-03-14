@@ -9,7 +9,7 @@ namespace Util.Helpers {
     /// <summary>
     /// Lambda表达式操作
     /// </summary>
-    public static class Lambda {
+    public static partial class Lambda {
 
         #region GetType(获取类型)
 
@@ -137,8 +137,26 @@ namespace Util.Helpers {
             var memberExpression = GetMemberExpression( expression, right );
             if( memberExpression == null )
                 return string.Empty;
+            if( IsValueExpression( memberExpression ) )
+                return string.Empty;
             string result = memberExpression.ToString();
             return result.Substring( result.LastIndexOf( ".", StringComparison.Ordinal ) + 1 );
+        }
+
+        /// <summary>
+        /// 是否值表达式
+        /// </summary>
+        /// <param name="expression">表达式</param>
+        private static bool IsValueExpression( Expression expression ) {
+            if( expression == null )
+                return false;
+            switch( expression.NodeType ) {
+                case ExpressionType.MemberAccess:
+                    return IsValueExpression( ( (MemberExpression)expression ).Expression );
+                case ExpressionType.Constant:
+                    return true;
+            }
+            return false;
         }
 
         #endregion

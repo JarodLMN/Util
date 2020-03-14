@@ -20,27 +20,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Areas\**" />
-    <Content Remove="Areas\**" />
-    <EmbeddedResource Remove="Areas\**" />
-    <None Remove="Areas\**" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
   </ItemGroup>
-
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Util.Caches\04-Util.Caches.csproj" />
+    <ProjectReference Include="..\..\src\Util.Biz\01-Util.Biz.csproj" />
     <ProjectReference Include="..\..\src\Util.Events\05-Util.Events.csproj" />
-    <ProjectReference Include="..\..\src\Util.Ui.Core\02-Util.Ui.Core.csproj" />
-    <ProjectReference Include="..\..\src\Util.Webs\09-Util.Webs.csproj" />
+    <ProjectReference Include="..\..\src\Util.Ui.Angular.AntDesign\05-Util.Ui.Angular.AntDesign.csproj" />
+    <ProjectReference Include="..\Util.Samples.Service\Util.Samples.Service.csproj" />
   </ItemGroup>
-
 
   <ItemGroup>
     <Content Update="nlog.config">
@@ -48,13 +36,17 @@
     </Content>
   </ItemGroup>
 
+  <!-- Debug调试模式打包第三方框架 -->
+  <Target Name="Debug_RunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
+    <!-- 打包 -->
+    <Message Importance="high" Text="Webpack开始打包..." />
+    <!--<Exec Command="npm run dev" />-->
+  </Target>
 
-  <ItemGroup>
-    <Folder Include="Apis\" />
-    <Folder Include="Typing\app\g2\column\" />
-  </ItemGroup>
-
-
-  <ProjectExtensions><VisualStudio><UserProperties package_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
+  <!-- 发布阶段打包 -->
+  <Target Name="Publish_RunWebpack" AfterTargets="ComputeFilesToPublish">
+    <Message Importance="high" Text="Webpack开始打包..." />
+    <!--<Exec Command="npm run prod" />-->
+  </Target>
 
 </Project>

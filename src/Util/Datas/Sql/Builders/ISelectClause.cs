@@ -90,6 +90,11 @@ namespace Util.Datas.Sql.Builders {
         /// <summary>
         /// 设置列名
         /// </summary>
+        /// <param name="propertyAsAlias">是否将属性名映射为列别名</param>
+        void Select<TEntity>( bool propertyAsAlias = false );
+        /// <summary>
+        /// 设置列名
+        /// </summary>
         /// <param name="columns">列名</param>
         /// <param name="propertyAsAlias">是否将属性名映射为列别名</param>
         void Select<TEntity>( Expression<Func<TEntity, object[]>> columns, bool propertyAsAlias = false ) where TEntity : class;
@@ -115,7 +120,24 @@ namespace Util.Datas.Sql.Builders {
         /// 添加到Select子句
         /// </summary>
         /// <param name="sql">Sql语句</param>
-        void AppendSql( string sql );
+        /// <param name="columnAlias">列别名</param>
+        void AppendSql( string sql, string columnAlias = null );
+        /// <summary>
+        /// 移除列名
+        /// </summary>
+        /// <param name="columns">列名</param>
+        /// <param name="tableAlias">表别名</param>
+        void RemoveSelect( string columns, string tableAlias = null );
+        /// <summary>
+        /// 移除列名
+        /// </summary>
+        /// <param name="expression">列名表达式</param>
+        void RemoveSelect<TEntity>( Expression<Func<TEntity, object[]>> expression ) where TEntity : class;
+        /// <summary>
+        /// 移除列名
+        /// </summary>
+        /// <param name="expression">列名表达式</param>
+        void RemoveSelect<TEntity>( Expression<Func<TEntity, object>> expression ) where TEntity : class;
         /// <summary>
         /// 输出Sql
         /// </summary>

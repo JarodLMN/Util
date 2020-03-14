@@ -7,7 +7,6 @@ using Util.Domains;
 using Util.Domains.Repositories;
 using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
-using Util.Applications.Dtos;
 using Util.Datas.Ef;
 using Util.Datas.Stores;
 using Util.Maps;
@@ -19,9 +18,9 @@ namespace Util.Applications {
     /// <typeparam name="TEntity">实体类型</typeparam>
     /// <typeparam name="TDto">数据传输对象类型</typeparam>
     /// <typeparam name="TQueryParameter">查询参数类型</typeparam>
-    public abstract class QueryServiceBase<TEntity, TDto, TQueryParameter> : QueryServiceBase<TEntity, TDto, TQueryParameter, Guid>
+    public abstract partial class QueryServiceBase<TEntity, TDto, TQueryParameter> : QueryServiceBase<TEntity, TDto, TQueryParameter, Guid>
         where TEntity : class, IKey<Guid>, IVersion
-        where TDto : IResponse, new()
+        where TDto : new()
         where TQueryParameter : IQueryParameter {
         /// <summary>
         /// 初始化查询服务
@@ -40,7 +39,7 @@ namespace Util.Applications {
     /// <typeparam name="TKey">实体标识类型</typeparam>
     public abstract class QueryServiceBase<TEntity, TDto, TQueryParameter, TKey> : ServiceBase, IQueryService<TDto, TQueryParameter>
         where TEntity : class, IKey<TKey>, IVersion
-        where TDto : IResponse, new()
+        where TDto : new()
         where TQueryParameter : IQueryParameter {
         /// <summary>
         /// 查询存储器

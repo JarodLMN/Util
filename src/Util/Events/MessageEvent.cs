@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Util.Helpers;
 
 namespace Util.Events {
     /// <summary>
@@ -17,6 +18,10 @@ namespace Util.Events {
         /// 回调名称
         /// </summary>
         public string Callback { get; set; }
+        /// <summary>
+        /// 是否立即发送消息
+        /// </summary>
+        public bool Send { get; set; }
 
         /// <summary>
         /// 输出日志
@@ -29,7 +34,7 @@ namespace Util.Events {
                 result.AppendLine( $"消息名称:{Name}" );
             if( string.IsNullOrWhiteSpace( Callback ) == false )
                 result.AppendLine( $"回调名称:{Callback}" );
-            result.Append( $"事件数据：{Util.Helpers.Json.ToJson( Data )}" );
+            result.Append( $"事件数据：{Json.ToJson( Data )}" );
             return result.ToString();
         }
     }

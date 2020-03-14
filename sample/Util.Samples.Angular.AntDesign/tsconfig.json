@@ -16,11 +16,13 @@
     "strictNullChecks": false,
     "strict": true,
     "lib": [ "es6", "dom" ],
-    "types": [ "webpack-env" ],
+    "types": [ "node", "webpack-env" ],
+    "typeRoots": [ "node_modules/@types" ],
     "baseUrl": "."
   },
   "angularCompilerOptions": {
-    "debug": true    
+    "debug": true,
+    "fullTemplateTypeCheck": true
   },
-  "exclude": [ "bin", "node_modules" ]
+  "exclude": [ "bin", "node_modules","wwwroot/upload" ]
 }

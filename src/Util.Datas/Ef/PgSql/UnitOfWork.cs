@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Util.Datas.Ef.Core;
 using Util.Datas.Ef.Internal;
-using Util.Datas.UnitOfWorks;
 
 namespace Util.Datas.Ef.PgSql {
     /// <summary>
@@ -16,16 +15,9 @@ namespace Util.Datas.Ef.PgSql {
         /// 初始化PgSql工作单元
         /// </summary>
         /// <param name="options">配置</param>
-        /// <param name="manager">工作单元服务</param>
-        protected UnitOfWork( DbContextOptions options, IUnitOfWorkManager manager )
-            : base( options, manager ) {
-        }
-
-        /// <summary>
-        /// 获取映射接口类型
-        /// </summary>
-        protected override Type GetMapType() {
-            return typeof( IMap );
+        /// <param name="serviceProvider">服务提供器</param>
+        protected UnitOfWork( DbContextOptions options, IServiceProvider serviceProvider = null )
+            : base( options, serviceProvider ) {
         }
 
         /// <summary>
